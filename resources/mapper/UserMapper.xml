@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nwsuaf.mapper.UserMapper">
+
+	<select id="findPasswdByID" resultType="java.lang.String">
+		SELECT password FROM
+		reader WHERE cert_id = #{id} and usr_state=1
+	</select>
+
+	<select id="findAge" resultType="java.lang.String">
+		SELECT
+		TIMESTAMPDIFF(YEAR,(select birthday from reader where
+		cert_id=#{_parameter}), CURDATE())
+	</select>
+
+	<select id="findUser" resultType="User">
+		SELECT * FROM reader WHERE
+		(cert_id like '%${id}%' or name like '%${id}%') and occupation!='管理员' limit #{num},15
+	</select>
+
+	<select id="getbooks" resultType="java.lang.String">
+		SELECT BOOK_TITLE FROM
+		lend,marc WHERE lend.CERT_ID_F=#{_parameter} and
+		lend.MARC_REC_NO_F=marc.MARC_REC_NO
+		order by LEND_DATE desc limit 15
+	</select>
+
+	<select id="usercount" resultType="java.lang.Integer">
+		select count(*) from reader
+		where cert_id like '%${_parameter}%' or name like '%${_parameter}%'
+	</select>
+
+	<select id="bookjiansuo" resultType="Book">
+		SELECT * FROM reader WHERE
+		cert_id like '%${_parameter}%' limit 15
+	</select>
+
+	<select id="findnamebyid" resultType="java.lang.String">
+		SELECT name FROM reader
+		WHERE cert_id = #{id}
+	</select>
+
+	<update id="insertKey">
+		update book_bq set
+		key1=#{1},key2=#{2},key3=#{3},key4=#{4},key5=#{5},key6=#{6},key7=#{7},key8=#{8},
+		key9=#{9},key10=#{10},value1=#{11},value2=#{12},value3=#{13},value4=#{14},value5=#{15},value6=#{16},value7=#{17},value8=#{18},
+		value9=#{19},value10=#{20} where cert_id=#{0}
+	</update>
+
+	<delete id="deleteByID">
+		delete from reader where cert_id=#{id}
+	</delete>
+
+	<update id="updateUser">
+		update reader set
+		password=#{0},dept=#{2},birthday=#{1},sex=#{3} where
+		cert_id=#{4}
+	</update>
+
+	<update id="dongjie">
+		update reader set usr_state=0 where cert_id=#{id}
+	</update>
+
+	<update id="activeUser">
+		update reader set usr_state=1 where cert_id=#{id}
+	</update>
+
+	<update id="sys_updateUser">
+		update reader set
+		password=#{0},dept=#{2},birthday=#{1},sex=#{3},occupation=#{5},phone=#{6}
+		where cert_id=#{4}
+	</update>
+
+	<insert id="insertUser">
+		insert into reader
+		values(#{0},#{1},#{2},#{3},#{4},#{5},#{6},#{7},"")
+	</insert>
+
+	<insert id="insertPH">
+		insert into ph(cert_id,time,ip,zd,weizhi)
+		values(#{0},#{1},#{2},#{3},#{4})
+	</insert>
+
+	<select id="findxyByID" resultType="java.lang.String">
+		SELECT occupation FROM reader
+		WHERE cert_id = #{id}
+	</select>
+
+	<select id="findip" resultType="ph">
+		select cert_id,ip from ph where
+		cert_id=#{_parameter} GROUP BY ip order by count(*) desc limit 1
+	</select>
+
+	<select id="findtime" resultType="ph">
+		select cert_id,time from ph
+		where cert_id=#{_parameter} GROUP BY ip order by count(*) desc limit 1
+	</select>
+
+	<select id="findzd" resultType="ph">
+		select cert_id,zd from ph where
+		cert_id=#{_parameter} GROUP BY ip order by count(*) desc limit 1
+	</select>
+
+	<select id="findweizhi" resultType="ph">
+		select cert_id,weizhi from ph
+		where cert_id=#{_parameter} GROUP BY ip order by count(*) desc limit 1
+	</select>
+
+	<select id="findAllid" resultType="java.lang.String">
+		select cert_id from reader
+		where dept='农学院' and occupation='教师'
+	</select>
+
+	<select id="findSimilar" resultType="java.util.HashMap">
+		select CERT_ID_F,name,count
+		from reader,(select CERT_ID_F,(count(*))as count from
+		lend,marc where
+		marc.BOOK_TITLE like '%${book_bq}%' and
+		lend.MARC_REC_NO_F=marc.MARC_REC_NO
+		and CERT_ID_F!=#{id} group by
+		CERT_ID_F order by count(*) desc limit 7)as
+		similar
+		where
+		reader.cert_id=similar.CERT_ID_F
+	</select>
+
+	<select id="getlendc" resultType="java.lang.Integer">
+		select count(*) from lend where
+		CERT_ID_F=#{_parameter}
+	</select>
+
+	<select id="finddongtai" resultType="dongtai">
+		select * from dongtai where
+		cert_id=#{_parameter} order by time desc
+	</select>
+
+	<update id="dingup">
+		update dongtai set ding=ding+1 where id=#{_parameter}
+	</update>
+
+	<update id="caiup">
+		update dongtai set cai=cai+1 where id=#{_parameter}
+	</update>
+
+	<insert id="insertDT">
+		insert into dongtai(cert_id,text,time)
+		values(#{0},#{1},#{2})
+	</insert>
+
+	<select id="findLY" resultType="liuyan">
+		select * from liuyan where
+		cert_id=#{_parameter} order by id desc
+	</select>
+
+	<insert id="insertLY">
+		insert into liuyan(cert_id,text,lyid)
+		values(#{0},#{1},#{2})
+	</insert>
+
+	<select id="findtotlesize" resultType="java.lang.Integer">
+		select count(*) from
+		dongtai where cert_id=#{_parameter}
+	</select>
+
+	<select id="findfabiaoc" resultType="java.lang.Integer">
+		select count(*)+(select
+		count(*) from zl where writer like '%${_parameter}%')
+		from wx where
+		author like '%${_parameter}%'
+	</select>
+
+	<select id="findqushi" resultType="java.lang.Integer">
+		select count(*)as count from
+		lend where CERT_ID_F=#{1} and LEND_DATE&gt;#{0} and LEND_DATE&lt;#{2}
+	</select>
+
+	<select id="findbook_bq" resultType="book_bq">
+		select * from book_bq where
+		cert_id=#{_parameter}
+	</select>
+
+	<select id="findwx_bq" resultType="book_bq">
+		select * from wx_bq where
+		cert_id=#{_parameter}
+	</select>
+
+	<select id="findSimilar_wx" resultType="java.lang.String">
+		select author from wx
+		where wx.subject like '%${_parameter}%'		
+	</select>
+
+	<select id="findSimilar_lw" resultType="java.lang.String">
+		select writer from zl
+		where zl.title like '%${_parameter}%'
+	</select>
+
+	<select id="finduserbyname" resultType="User">
+		select * from reader
+		where name=#{_parameter} limit 1
+	</select>
+	<select id="finduserbyname1" resultType="Reader">
+		select * from reader
+		where name=#{_parameter} limit 1
+	</select>
+
+    <select id="findxinxi" resultType="java.lang.String">
+		select cert_id from reader
+	</select>
+	
+	<select id="findlendxinxi" resultType="java.lang.String">
+		select distinct CERT_ID_F from lend 
+	</select>
+</mapper>
