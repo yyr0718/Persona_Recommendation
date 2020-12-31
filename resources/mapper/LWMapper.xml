@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nwsuaf.mapper.LWMapper">
+    
+    <insert id="addLW">
+	 insert into wx values(#{0},#{1},#{2},#{3},#{4},#{5},#{6},#{7},#{8},#{9},#{10},#{11},#{12},
+	 #{13},#{14},#{15},#{16},#{17},#{18})
+	</insert>
+	
+	<select id="LWcount"  resultType="java.lang.Integer">
+        select max(id) from wx
+    </select>
+    
+    <select id="LWcount1"  resultType="java.lang.Integer">
+        select count(id) from wx
+    </select>
+    
+    <select id="LWInquiry"  resultType="LW">
+        SELECT * FROM wx limit #{pagenum},15
+    </select>
+    
+    <select id="LWjiansuo"  resultType="LW">
+        select * from wx where subject like '%${valueOf}%' or author like '%${valueOf}%' limit #{pagenum},15
+    </select>
+    
+    <select id="bookjiancount"  resultType="java.lang.Integer">
+        select count(*) from wx where subject like '%${_parameter}%' or author like '%${_parameter}%'
+    </select>
+    
+    <select id="getlws" resultType="java.lang.String">
+		SELECT subject FROM wx WHERE author like '%${_parameter}%'
+	</select>
+	
+	<update id="insertKey_lw">
+		update wx_bq set key1=#{1},key2=#{2},key3=#{3},key4=#{4},key5=#{5},key6=#{6},key7=#{7},key8=#{8},
+		key9=#{9},key10=#{10},value1=#{11},value2=#{12},value3=#{13},value4=#{14},value5=#{15},value6=#{16},value7=#{17},value8=#{18},
+		value9=#{19},value10=#{20} where cert_id=#{0}
+	</update>
+	
+	<select id="getlw_bq"  resultType="book_bq">
+        SELECT * FROM wx_bq WHERE cert_id=#{_parameter}
+    </select>
+    
+    <select id="getfriend_lw"  resultType="java.lang.String">
+        SELECT author FROM wx where author like '%${_parameter}%'
+    </select>
+    
+    <insert id="addfamilar">
+	 insert into analysis(cert_id,o_id,number,flag) values(#{0},#{1},#{2},#{3})
+	</insert>
+	
+	<delete id="delete">
+	delete from analysis where cert_id=#{_parameter} and flag=0
+	</delete>
+	
+	<delete id="deletefriend">
+	delete from analysis where cert_id=#{_parameter} and flag=1
+	</delete>
+	
+	<delete id="delete_bookfamilar">
+	delete from analysis where cert_id=#{_parameter} and flag=2
+	</delete>
+	
+	<insert id="addfriend">
+	 insert into analysis(cert_id,o_id,number,flag) values(#{0},#{1},#{2},#{3})
+	</insert>
+</mapper>
